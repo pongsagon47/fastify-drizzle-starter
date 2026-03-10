@@ -1,6 +1,6 @@
-import { eq, like, or, count, sql } from 'drizzle-orm';
+import { eq, like, or, count, desc } from 'drizzle-orm';
 import { db } from '@/config/database.js';
-import { users, type NewUser, type User } from '@/db/schema/index.js';
+import { posts, users, type NewUser, type User } from '@/db/schema/index.js';
 import type { UpdateUserDto, UserQuery } from '@/modules/users/users.schema.js';
 
 export class UsersRepository {
@@ -25,6 +25,7 @@ export class UsersRepository {
           role: users.role,
           isActive: users.isActive,
           createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
         })
         .from(users)
         .where(whereClause)
@@ -51,17 +52,37 @@ export class UsersRepository {
         isActive: users.isActive,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
+        countPosts: count(posts.id),
       })
       .from(users)
+      .leftJoin(posts, eq(users.id, posts.userId))
       .where(eq(users.id, id))
+      .groupBy(users.id)
       .limit(1);
 
     return row ?? null;
+
+  }
+
+  // Example of using relations
+  findUserWithPosts(id: number) {
+    return db.query.users.findFirst({
+      where: eq(users.id, id),
+      with: {
+        posts: {
+          columns: {
+            id: true,
+            title: true,
+            content: true,
+          },
+          orderBy: [desc(posts.createdAt)],
+        },
+      },
+    });
   }
 
   // หา user ตาม email (รวม password สำหรับ auth)
   async findByEmail(email: string): Promise<User | null> {
-    console.log('email', email);
     const [row] = await db
       .select()
       .from(users)

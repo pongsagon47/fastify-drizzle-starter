@@ -12,6 +12,8 @@ export async function authRoutes(app: FastifyInstance) {
   zApp.post('/login', {
     schema: {
       body: loginZod,
+      tags: ['Auth'],
+      summary: 'Login',
     },
     handler: async (req, reply) => {
       const result = await service.login(req.body);
@@ -21,6 +23,10 @@ export async function authRoutes(app: FastifyInstance) {
 
   // GET /auth/me — ดู profile ตัวเอง
   zApp.get('/me', {
+    schema: {
+      tags: ['Auth'],
+      summary: 'Get current user',
+    },
     preHandler: [authenticate],
     handler: async (req, reply) => {
       const user = req.user as { id: number; };

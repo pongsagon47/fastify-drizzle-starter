@@ -4,9 +4,6 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { env } from '@/config/env.js';
 import { z } from 'zod';
 import {
-  sendWelcomeMail,
-  sendResetPasswordMail,
-  sendOtpMail,
   sendCustomMail,
 } from '@/utils/mailer/mailer.js';
 

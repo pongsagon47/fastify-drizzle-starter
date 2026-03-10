@@ -18,6 +18,8 @@ export async function usersRoutes(app: FastifyInstance) {
   zApp.get('/', {
     schema: {
       querystring: userQueryZod,
+      tags: ['Users'],
+      summary: 'List all users',
     },
     preHandler: [authenticate, requireRole('admin')],
     handler: async (req, reply) => {
@@ -30,6 +32,8 @@ export async function usersRoutes(app: FastifyInstance) {
   zApp.get('/:id', {
     schema: {
       params: userParamsZod,
+      tags: ['Users'],
+      summary: 'Get one user',
     },
     preHandler: [authenticate],
     handler: async (req, reply) => {
@@ -43,6 +47,8 @@ export async function usersRoutes(app: FastifyInstance) {
   zApp.post('/', {
     schema: {
       body: createUserZod,
+      tags: ['Users'],
+      summary: 'Create a new user',
     },
     handler: async (req, reply) => {
       const result = await service.create(req.body);
@@ -55,6 +61,8 @@ export async function usersRoutes(app: FastifyInstance) {
     schema: {
       params: userParamsZod,
       body: updateUserZod,
+      tags: ['Users'],
+      summary: 'Update a user',
     },
     preHandler: [authenticate],
     handler: async (req, reply) => {
@@ -68,6 +76,8 @@ export async function usersRoutes(app: FastifyInstance) {
   zApp.delete('/:id', {
     schema: {
       params: userParamsZod,
+      tags: ['Users'],
+      summary: 'Delete a user',
     },
     preHandler: [authenticate, requireRole('admin')],
     handler: async (req, reply) => {
