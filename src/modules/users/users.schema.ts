@@ -6,10 +6,11 @@ export const createUserZod = z.object({
   email: z.email(),
   password: z.string().min(8),
   role: z.enum(['user', 'admin']).default('user'),
-  // avatar: z.string().optional(),
 });
 
-export const updateUserZod = createUserZod.partial().omit({ password: true });
+export const updateUserZod = createUserZod.partial().omit({ password: true }).extend({
+  avatar: z.string().optional(),  // ← เพิ่ม
+});
 
 export const userParamsZod = z.object({
   id: z.coerce.number().int().positive(),
@@ -26,3 +27,21 @@ export type CreateUserDto = z.infer<typeof createUserZod>;
 export type UpdateUserDto = z.infer<typeof updateUserZod>;
 export type UserParams = z.infer<typeof userParamsZod>;
 export type UserQuery = z.infer<typeof userQueryZod>;
+
+// Response types
+export type UserResponse = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  avatar: string | null;
+  createdAt: string;   // ← string เพราะ format แล้ว
+  updatedAt: string;
+};
+
+
+export type UserListResponse = {
+  rows: UserResponse[];
+  total: number;
+};

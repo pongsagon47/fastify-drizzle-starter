@@ -6,8 +6,10 @@ import {
   updateUserZod,
   userParamsZod,
   userQueryZod,
+  UserResponse,
 } from '@/modules/users/users.schema';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { createMeta, paginatedResponse, successResponse } from '@/shared/response';
 
 const service = new UsersService();
 
@@ -23,8 +25,9 @@ export async function usersRoutes(app: FastifyInstance) {
     },
     preHandler: [authenticate, requireRole('admin')],
     handler: async (req, reply) => {
-      const result = await service.getAll(req.query);
-      return reply.send(result);
+      const { rows, total } = await service.getAll(req.query);
+      const meta = createMeta(req.query.page, req.query.limit, total);
+      return reply.send(paginatedResponse<UserResponse[]>(rows, meta, 'Retrieved users successfully'));
     },
   });
 
@@ -38,8 +41,8 @@ export async function usersRoutes(app: FastifyInstance) {
     preHandler: [authenticate],
     handler: async (req, reply) => {
       const { id } = req.params;
-      const result = await service.getById(id);
-      return reply.send(result);
+      const user = await service.getById(id);
+      return reply.send(successResponse<UserResponse>(user, 'Retrieved user successfully'));
     },
   });
 
@@ -51,8 +54,8 @@ export async function usersRoutes(app: FastifyInstance) {
       summary: 'Create a new user',
     },
     handler: async (req, reply) => {
-      const result = await service.create(req.body);
-      return reply.code(201).send(result);
+      const user = await service.create(req.body);
+      return reply.code(201).send(successResponse<UserResponse>(user, 'User created successfully'));
     },
   });
 
@@ -67,8 +70,8 @@ export async function usersRoutes(app: FastifyInstance) {
     preHandler: [authenticate],
     handler: async (req, reply) => {
       const { id } = req.params;
-      const result = await service.update(id, req.body);
-      return reply.send(result);
+      const user = await service.update(id, req.body);
+      return reply.send(successResponse<UserResponse>(user, 'User updated successfully'));
     },
   });
 
@@ -81,8 +84,8 @@ export async function usersRoutes(app: FastifyInstance) {
     preHandler: [authenticate],
     handler: async (req, reply) => {
       const { id } = req.params;
-      const result = await service.uploadAvatar(id, req);
-      return reply.send(result);
+      await service.uploadAvatar(id, req);
+      return reply.send(successResponse(null, 'Avatar uploaded successfully'));
     },
   });
 
@@ -96,8 +99,8 @@ export async function usersRoutes(app: FastifyInstance) {
     preHandler: [authenticate, requireRole('admin')],
     handler: async (req, reply) => {
       const { id } = req.params;
-      const result = await service.delete(id);
-      return reply.send(result);
+      await service.delete(id);
+      return reply.send(successResponse(null, 'User deleted successfully'));
     },
   });
 }

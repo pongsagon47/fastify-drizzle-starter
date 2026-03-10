@@ -26,7 +26,7 @@ export class AuthService {
       { expiresIn: '7d' }
     );
 
-    return successResponse({
+    return {
       token,
       user: {
         id: user.id,
@@ -34,12 +34,12 @@ export class AuthService {
         email: user.email,
         role: user.role,
       },
-    }, 'Login successful');
+    };
   }
 
   async me(userId: number) {
     const user = await repo.findById(userId);
     if (!user) throw new UnauthorizedError();
-    return successResponse(user);
+    return user;
   }
 }

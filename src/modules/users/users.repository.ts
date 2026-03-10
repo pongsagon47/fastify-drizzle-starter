@@ -3,6 +3,8 @@ import { db } from '@/config/database';
 import { posts, users, type NewUser, type User } from '@/db/schema/index';
 import type { UpdateUserDto, UserQuery } from '@/modules/users/users.schema';
 
+
+
 export class UsersRepository {
   // หา user ทั้งหมด + pagination
   async findAll(query: UserQuery) {
@@ -18,15 +20,7 @@ export class UsersRepository {
 
     const [rows, [{ total }]] = await Promise.all([
       db
-        .select({
-          id: users.id,
-          name: users.name,
-          email: users.email,
-          role: users.role,
-          isActive: users.isActive,
-          createdAt: users.createdAt,
-          updatedAt: users.updatedAt,
-        })
+        .select()
         .from(users)
         .where(whereClause)
         .limit(limit)
@@ -44,20 +38,9 @@ export class UsersRepository {
   // หา user ตาม id
   async findById(id: number) {
     const [row] = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        isActive: users.isActive,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
-        countPosts: count(posts.id),
-      })
+      .select()
       .from(users)
-      .leftJoin(posts, eq(users.id, posts.userId))
       .where(eq(users.id, id))
-      .groupBy(users.id)
       .limit(1);
 
     return row ?? null;

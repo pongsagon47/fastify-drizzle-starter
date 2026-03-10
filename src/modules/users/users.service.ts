@@ -1,40 +1,53 @@
-import { hash } from 'crypto';
+import bcrypt from 'bcrypt';
 import { UsersRepository } from '@/modules/users/users.repository';
 import { NotFoundError, ConflictError, ValidationError } from '@/shared/errors';
-import { createMeta, paginatedResponse, successResponse } from '@/shared/response';
-import type { CreateUserDto, UpdateUserDto, UserQuery } from '@/modules/users/users.schema';
+import type { CreateUserDto, UpdateUserDto, UserListResponse, UserQuery, UserResponse } from '@/modules/users/users.schema';
 import { FastifyRequest } from 'fastify';
-import { uploadImage } from '@/utils/upload/upload';
+import { deleteFile, uploadImage } from '@/utils/upload/upload';
+import { formatThaiShort } from '@/utils/time/time';
+import { User } from '@/db/schema/users';
 
 const repo = new UsersRepository();
 
+function mapUserToResponse(user: User): UserResponse {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isActive: user.isActive,
+    avatar: user.avatar,
+    createdAt: formatThaiShort(user.createdAt),
+    updatedAt: formatThaiShort(user.updatedAt),
+  };
+}
+
 export class UsersService {
-  async getAll(query: UserQuery) {
+  async getAll(query: UserQuery): Promise<UserListResponse> {
     const { rows, total } = await repo.findAll(query);
-    const meta = createMeta(query.page, query.limit, total);
-
-    return paginatedResponse(rows, meta);
+    const users = rows.map(mapUserToResponse);
+    return { rows: users, total };
   }
 
-  async getById(id: number) {
+  async getById(id: number): Promise<UserResponse> {
     const user = await repo.findById(id);
-    if (!user) throw new NotFoundError('User');
-    return successResponse(user);
+    if (!user) throw new NotFoundError('User not found');
+    return mapUserToResponse(user);
   }
 
-  async create(data: CreateUserDto) {
+  async create(data: CreateUserDto): Promise<UserResponse> {
     // ตรวจ email ซ้ำ
     const existing = await repo.findByEmail(data.email);
     if (existing) throw new ConflictError('Email already in use');
 
     // hash password ก่อน save
-    const hashedPassword = hash('sha256', data.password);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user = await repo.create({ ...data, password: hashedPassword });
-    return successResponse(user, 'User created successfully');
+    return mapUserToResponse(user);
   }
 
-  async update(id: number, data: UpdateUserDto) {
+  async update(id: number, data: UpdateUserDto): Promise<UserResponse> {
     const existing = await repo.findById(id);
     if (!existing) throw new NotFoundError('User');
 
@@ -45,10 +58,10 @@ export class UsersService {
     }
 
     const user = await repo.update(id, data);
-    return successResponse(user, 'User updated successfully');
+    return mapUserToResponse(user);
   }
 
-  async uploadAvatar(id: number, req: FastifyRequest) {
+  async uploadAvatar(id: number, req: FastifyRequest): Promise<void> {
     const user = await repo.findById(id);
     if (!user) throw new NotFoundError('User');
 
@@ -62,16 +75,18 @@ export class UsersService {
       buffer,
       originalName: filename,
       mimeType: mimetype,
+      resize: 'thumbnail',  // ← ควรใส่
     });
+
+    if (user.avatar) await deleteFile(user.avatar);  // ← ควรมี
+
     await repo.updateAvatar(id, result.path);
-    return successResponse(result, 'Avatar uploaded successfully');
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<void> {
     const existing = await repo.findById(id);
     if (!existing) throw new NotFoundError('User');
 
     await repo.delete(id);
-    return successResponse(null, 'User deleted successfully');
   }
 }

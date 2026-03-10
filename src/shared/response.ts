@@ -15,7 +15,7 @@ export interface PaginationMeta {
 }
 
 export function successResponse<T>(data: T, message?: string): ApiResponse<T> {
-  return { success: true, data, message };
+  return { success: true, message, data };
 }
 
 export function createMeta(page: number, limit: number, total: number): PaginationMeta {
@@ -40,9 +40,10 @@ export function createMeta(page: number, limit: number, total: number): Paginati
 
 export function paginatedResponse<T>(
   data: T,
-  meta: PaginationMeta
+  meta: PaginationMeta,
+  message?: string
 ): ApiResponse<T> {
-  return { success: true, data, meta };
+  return { success: true, message, data, meta };
 }
 
 export function errorResponse(message: string): ApiResponse<never> {

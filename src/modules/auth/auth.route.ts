@@ -3,6 +3,7 @@ import { AuthService } from '@/modules/auth/auth.service';
 import { authenticate } from '@/middlewares/authenticate';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { loginZod } from '@/modules/auth/auth.schema';
+import { successResponse } from '@/shared/response';
 
 export async function authRoutes(app: FastifyInstance) {
   const service = new AuthService(app);
@@ -22,8 +23,11 @@ export async function authRoutes(app: FastifyInstance) {
       summary: 'Login',
     },
     handler: async (req, reply) => {
-      const result = await service.login(req.body);
-      return reply.send(result);
+      const { token, user } = await service.login(req.body);
+      return reply.send(successResponse({
+        token,
+        user,
+      }, 'Logged in successfully'));
     },
   });
 
@@ -35,9 +39,9 @@ export async function authRoutes(app: FastifyInstance) {
     },
     preHandler: [authenticate],
     handler: async (req, reply) => {
-      const user = req.user as { id: number; };
-      const result = await service.me(user.id);
-      return reply.send(result);
+      const authUser = req.user as { id: number; };
+      const userInfo = await service.me(authUser.id);
+      return reply.send(successResponse(userInfo, 'Retrieved user successfully'));
     },
   });
 }

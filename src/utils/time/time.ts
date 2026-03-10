@@ -23,12 +23,14 @@ export function fromThaiTime(date: Date | string): Date {
 
 // "10/03/2568 13:00:00" — Thai locale พุทธศักราช
 export function formatThai(date: Date | string): string {
-  return format(toThaiTime(date), 'dd/MM/yyyy HH:mm:ss', { locale: th });
+  const budYear = typeof date === 'string' ? new Date(date).getFullYear() + 543 : date.getFullYear() + 543;
+  return format(toThaiTime(date), `dd/MM/${budYear} HH:mm:ss`, { locale: th });
 }
 
 // "10 มี.ค. 2568 13:00" — อ่านง่าย
 export function formatThaiShort(date: Date | string): string {
-  return format(toThaiTime(date), 'd MMM yyyy HH:mm', { locale: th });
+  const budYear = typeof date === 'string' ? new Date(date).getFullYear() + 543 : date.getFullYear() + 543;
+  return format(toThaiTime(date), `d MMM${budYear} HH:mm`, { locale: th });
 }
 
 // "2025-03-10T06:00:00.000Z" — ISO สำหรับ API response
