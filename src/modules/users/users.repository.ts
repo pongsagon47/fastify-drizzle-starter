@@ -61,6 +61,7 @@ export class UsersRepository {
 
   // หา user ตาม email (รวม password สำหรับ auth)
   async findByEmail(email: string): Promise<User | null> {
+    console.log('email', email);
     const [row] = await db
       .select()
       .from(users)

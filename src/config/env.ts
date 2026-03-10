@@ -3,6 +3,8 @@ import { z, flattenError } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
+
+  // DATABASE
   DB_HOST: z.string().min(1, 'DB_HOST is required'),
   DB_PORT: z.coerce.number().default(3306),
   DB_USER: z.string().min(1, 'DB_USER is required'),
@@ -11,9 +13,21 @@ const envSchema = z.object({
   DB_SSL_CERT: z.string().optional(),
   DB_SSL_KEY: z.string().optional(),
   DB_SSL_CA: z.string().optional(),
+
+  // JWT
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().default('7d'),
+
+  // CORS
   ALLOWED_ORIGINS: z.string().optional(),
+
+  // MAILER
+  MAIL_HOST: z.string().optional(),
+  MAIL_PORT: z.coerce.number().default(587),
+  MAIL_USER: z.string().optional(),
+  MAIL_PASS: z.string().optional(),
+  MAIL_FROM: z.email('MAIL_FROM must be a valid email address').optional(),
+  MAIL_FROM_NAME: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

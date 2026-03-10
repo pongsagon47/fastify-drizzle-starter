@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
 import { env } from '@/config/env';
@@ -28,3 +29,13 @@ const pool = mysql.createPool(connectConfig());
 
 export const db = drizzle({ client: pool });
 export type DB = typeof db;
+
+export async function checkDatabaseConnection() {
+  try {
+    await db.execute(sql`SELECT 1`);
+    console.log('✅ Database connected');
+  } catch (err) {
+    console.error('❌ Database connection failed:', err);
+    process.exit(1);
+  }
+}

@@ -1,0 +1,9 @@
+<%
+const body = `
+  <h2>สวัสดีคุณ ${name} 👋</h2>
+  <p>ขอบคุณที่สมัครสมาชิกกับ <strong>${appName}</strong></p>
+  <p>คุณสามารถเริ่มใช้งานระบบได้ทันที</p>
+  <a href="${loginUrl}" class="button">เข้าสู่ระบบ</a>
+`
+%>
+<%- include('layouts/base.ejs', { title, appName, body }) %>

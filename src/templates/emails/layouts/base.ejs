@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    body { font-family: 'Sarabun', Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+    .wrapper { max-width:600px; margin:40px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .header  { background:#1a56db; padding:24px 32px; }
+    .header h1 { color:#fff; margin:0; font-size:20px; font-weight:600; }
+    .body    { padding:32px; color:#333; line-height:1.8; }
+    .body h2 { font-size:18px; color:#1a56db; margin-top:0; }
+    .button  { display:inline-block; margin-top:16px; padding:12px 28px; background:#1a56db; color:#fff !important; text-decoration:none; border-radius:6px; font-size:14px; font-weight:600; }
+    .otp-box { font-size:36px; font-weight:bold; letter-spacing:12px; color:#1a56db; text-align:center; margin:24px 0; padding:16px; background:#f0f4ff; border-radius:8px; }
+    .note    { font-size:13px; color:#999; margin-top:16px; }
+    .footer  { background:#f9fafb; padding:16px 32px; font-size:12px; color:#999; border-top:1px solid #eee; text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1><%= title %></h1>
+    </div>
+    <div class="body">
+      <%- body %>
+    </div>
+    <div class="footer">
+      <%- include('../partials/footer.ejs', { year: new Date().getFullYear(), appName }) %>
+    </div>
+  </div>
+</body>
+</html>

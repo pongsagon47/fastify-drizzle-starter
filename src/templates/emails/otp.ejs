@@ -1,0 +1,11 @@
+<%
+const body = `
+  <h2>รหัส OTP ของคุณ</h2>
+  <p>สวัสดีคุณ ${name}</p>
+  <p>รหัส OTP สำหรับการยืนยันตัวตนของคุณคือ</p>
+  <div class="otp-box">${otp}</div>
+  <p style="text-align:center;" class="note">รหัสนี้จะหมดอายุใน <strong>${expiresIn}</strong></p>
+  <p class="note">หากคุณไม่ได้ขอรหัส OTP สามารถเพิกเฉยอีเมลนี้ได้</p>
+`
+%>
+<%- include('layouts/base.ejs', { title, appName, body }) %>
