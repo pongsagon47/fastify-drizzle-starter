@@ -1,7 +1,7 @@
 import { eq, like, or, count, desc } from 'drizzle-orm';
-import { db } from '@/config/database.js';
-import { posts, users, type NewUser, type User } from '@/db/schema/index.js';
-import type { UpdateUserDto, UserQuery } from '@/modules/users/users.schema.js';
+import { db } from '@/config/database';
+import { posts, users, type NewUser, type User } from '@/db/schema/index';
+import type { UpdateUserDto, UserQuery } from '@/modules/users/users.schema';
 
 export class UsersRepository {
   // หา user ทั้งหมด + pagination

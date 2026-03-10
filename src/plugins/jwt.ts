@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
 import jwt from '@fastify/jwt';
-import { env } from '@/config/env.js';
+import { env } from '@/config/env';
 
 export const jwtPlugin = fp(async (app) => {
   app.register(jwt, {

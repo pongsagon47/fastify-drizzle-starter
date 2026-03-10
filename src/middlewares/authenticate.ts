@@ -1,5 +1,5 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { UnauthorizedError } from '@/shared/errors.js';
+import { UnauthorizedError } from '@/shared/errors';
 
 // ใช้เป็น preHandler hook สำหรับ route ที่ต้องการ auth
 export async function authenticate(

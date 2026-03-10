@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import { buildApp } from '@/app.js';
-import { checkDatabaseConnection } from '@/config/database.js';
-import { env } from '@/config/env.js';
+import { buildApp } from '@/app';
+import { checkDatabaseConnection } from '@/config/database';
+import { env } from '@/config/env';
 
 const app = buildApp();
 

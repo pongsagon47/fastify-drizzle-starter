@@ -1,12 +1,12 @@
 import type { FastifyInstance } from 'fastify';
-import { UsersService } from '@/modules/users/users.service.js';
-import { authenticate, requireRole } from '@/middlewares/authenticate.js';
+import { UsersService } from '@/modules/users/users.service';
+import { authenticate, requireRole } from '@/middlewares/authenticate';
 import {
   createUserZod,
   updateUserZod,
   userParamsZod,
   userQueryZod,
-} from '@/modules/users/users.schema.js';
+} from '@/modules/users/users.schema';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 const service = new UsersService();
@@ -68,6 +68,20 @@ export async function usersRoutes(app: FastifyInstance) {
     handler: async (req, reply) => {
       const { id } = req.params;
       const result = await service.update(id, req.body);
+      return reply.send(result);
+    },
+  });
+
+  // PATCH /api/v1/users/:id/avatar
+  zApp.patch('/:id/avatar', {
+    schema: {
+      tags: ['Users'],
+      params: userParamsZod,
+    },
+    preHandler: [authenticate],
+    handler: async (req, reply) => {
+      const { id } = req.params;
+      const result = await service.uploadAvatar(id, req);
       return reply.send(result);
     },
   });

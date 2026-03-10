@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify';
-import { AuthService } from '@/modules/auth/auth.service.js';
-import { authenticate } from '@/middlewares/authenticate.js';
+import { AuthService } from '@/modules/auth/auth.service';
+import { authenticate } from '@/middlewares/authenticate';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { loginZod } from '@/modules/auth/auth.schema.js';
+import { loginZod } from '@/modules/auth/auth.schema';
 
 export async function authRoutes(app: FastifyInstance) {
   const service = new AuthService(app);
@@ -10,6 +10,12 @@ export async function authRoutes(app: FastifyInstance) {
 
   // POST /auth/login
   zApp.post('/login', {
+    config: {
+      rateLimit: {
+        max: 5, // 5 requests per minute
+        timeWindow: '1 minute', // 1 minute
+      },
+    },
     schema: {
       body: loginZod,
       tags: ['Auth'],

@@ -6,6 +6,7 @@ export const createUserZod = z.object({
   email: z.email(),
   password: z.string().min(8),
   role: z.enum(['user', 'admin']).default('user'),
+  avatar: z.string().optional(),
 });
 
 export const updateUserZod = createUserZod.partial().omit({ password: true });

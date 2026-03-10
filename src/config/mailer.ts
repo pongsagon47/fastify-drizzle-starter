@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
-import { env } from '@/config/env.js';
+import { env } from '@/config/env';
 
 export function createMailTransporter(): Transporter | null {
   if (!env.MAIL_HOST || !env.MAIL_USER || !env.MAIL_PASS || !env.MAIL_FROM) {

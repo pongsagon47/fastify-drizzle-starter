@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
-import { env } from '@/config/env.js';
-import * as schema from '@/db/schema/index.js';
+import { env } from '@/config/env';
+import * as schema from '@/db/schema/index';
 
 export function connectConfig() {
   let isSsl = false;

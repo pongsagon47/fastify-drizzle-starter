@@ -1,7 +1,7 @@
 import type { Transporter } from 'nodemailer';
-import { renderTemplate } from './mailer.renderer.js';
-import { env } from '@/config/env.js';
-import { AppError } from '@/shared/errors.js';
+import { renderTemplate } from './mailer.renderer';
+import { env } from '@/config/env';
+import { AppError } from '@/shared/errors';
 
 function assertMailer(transporter: Transporter | null): asserts transporter is Transporter {
   if (!transporter) {

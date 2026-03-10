@@ -1,8 +1,10 @@
 import { hash } from 'crypto';
-import { UsersRepository } from '@/modules/users/users.repository.js';
-import { NotFoundError, ConflictError } from '@/shared/errors.js';
-import { createMeta, paginatedResponse, successResponse } from '@/shared/response.js';
-import type { CreateUserDto, UpdateUserDto, UserQuery } from '@/modules/users/users.schema.js';
+import { UsersRepository } from '@/modules/users/users.repository';
+import { NotFoundError, ConflictError, ValidationError } from '@/shared/errors';
+import { createMeta, paginatedResponse, successResponse } from '@/shared/response';
+import type { CreateUserDto, UpdateUserDto, UserQuery } from '@/modules/users/users.schema';
+import { FastifyRequest } from 'fastify';
+import { uploadImage } from '@/utils/upload/upload';
 
 const repo = new UsersRepository();
 
@@ -44,6 +46,25 @@ export class UsersService {
 
     const user = await repo.update(id, data);
     return successResponse(user, 'User updated successfully');
+  }
+
+  async uploadAvatar(id: number, req: FastifyRequest) {
+    const user = await repo.findById(id);
+    if (!user) throw new NotFoundError('User');
+
+    const file = await req.file();
+    if (!file) throw new ValidationError('No file uploaded');
+
+    const buffer = await file.toBuffer();
+    const mimetype = file.mimetype;
+    const filename = file.filename;
+    const result = await uploadImage({
+      buffer,
+      originalName: filename,
+      mimeType: mimetype,
+    });
+    await repo.update(id, { avatar: result.path ?? '' });
+    return successResponse(result, 'Avatar uploaded successfully');
   }
 
   async delete(id: number) {

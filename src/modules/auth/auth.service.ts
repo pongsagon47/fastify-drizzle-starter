@@ -1,9 +1,9 @@
 import { hash } from 'crypto';
 import type { FastifyInstance } from 'fastify';
-import { UsersRepository } from '@/modules/users/users.repository.js';
-import { UnauthorizedError } from '@/shared/errors.js';
-import { successResponse } from '@/shared/response.js';
-import type { LoginDto } from '@/modules/auth/auth.schema.js';
+import { UsersRepository } from '@/modules/users/users.repository';
+import { UnauthorizedError } from '@/shared/errors';
+import { successResponse } from '@/shared/response';
+import type { LoginDto } from '@/modules/auth/auth.schema';
 
 const repo = new UsersRepository();
 

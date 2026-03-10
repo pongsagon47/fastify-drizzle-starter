@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
 import type { Transporter } from 'nodemailer';
-import { createMailTransporter } from '@/config/mailer.js';
+import { createMailTransporter } from '@/config/mailer';
 
 declare module 'fastify' {
   interface FastifyInstance {

@@ -1,11 +1,9 @@
 // src/modules/dev/dev.route.ts
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { env } from '@/config/env.js';
+import { env } from '@/config/env';
 import { z } from 'zod';
-import {
-  sendCustomMail,
-} from '@/utils/mailer/mailer.js';
+import { sendCustomMail } from '@/utils/mailer/mailer';
 
 export async function devRoutes(app: FastifyInstance) {
   // guard — ใช้ได้เฉพาะ development เท่านั้น
@@ -68,7 +66,7 @@ export async function devRoutes(app: FastifyInstance) {
       };
 
       try {
-        const { renderTemplate } = await import('@/utils/mailer/mailer.renderer.js');
+        const { renderTemplate } = await import('@/utils/mailer/mailer.renderer');
         const html = await renderTemplate(req.params.template, data);
         return reply.type('text/html').send(html);
       } catch {
