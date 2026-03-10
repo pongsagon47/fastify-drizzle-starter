@@ -104,6 +104,15 @@ export class UsersRepository {
     return this.findById(id);
   }
 
+  // users.repository.ts
+  async updateAvatar(id: number, avatarPath: string) {
+    await db
+      .update(users)
+      .set({ avatar: avatarPath })
+      .where(eq(users.id, id));
+    return this.findById(id);
+  }
+
   // ลบ user
   async delete(id: number) {
     await db.delete(users).where(eq(users.id, id));

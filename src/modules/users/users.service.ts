@@ -63,7 +63,7 @@ export class UsersService {
       originalName: filename,
       mimeType: mimetype,
     });
-    await repo.update(id, { avatar: result.path ?? '' });
+    await repo.updateAvatar(id, result.path);
     return successResponse(result, 'Avatar uploaded successfully');
   }
 
