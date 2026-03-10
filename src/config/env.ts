@@ -13,6 +13,7 @@ const envSchema = z.object({
   DB_SSL_CA: z.string().optional(),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().default('7d'),
+  ALLOWED_ORIGINS: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

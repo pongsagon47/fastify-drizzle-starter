@@ -1,14 +1,13 @@
 import { createRequire } from 'node:module';
 import Fastify from 'fastify';
-import cors from '@fastify/cors';
-import jwt from '@fastify/jwt';
-import swagger from '@fastify/swagger';
-import swaggerUi from '@fastify/swagger-ui';
-import { jsonSchemaTransform, serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import { env } from '@/config/env.js';
-import { errorHandler } from '@/middlewares/errorHandler.js'; // ✅ import จากข้างนอก
+import { errorHandler } from '@/middlewares/errorHandler.js';
 import { usersRoutes } from '@/modules/users/users.route.js';
 import { authRoutes } from '@/modules/auth/auth.route.js';
+import { corsPlugin } from '@/plugins/cors.js';
+import { jwtPlugin } from '@/plugins/jwt.js';
+import { swaggerPlugin } from '@/plugins/swagger.js';
 
 function getLoggerTransport() {
   if (env.NODE_ENV === 'production') return undefined;
@@ -33,31 +32,10 @@ export function buildApp() {
   app.setSerializerCompiler(serializerCompiler);
 
   // --- Plugins ---
-  app.register(cors, {
-    origin: env.NODE_ENV === 'production' ? false : true,
-    credentials: true,
-  });
+  app.register(corsPlugin);
+  app.register(jwtPlugin);
+  app.register(swaggerPlugin);
 
-  app.register(jwt, { secret: env.JWT_SECRET });
-
-  app.register(swagger, {
-    openapi: {
-      info: { title: 'My API', version: '1.0.0' },
-      components: {
-        securitySchemes: {
-          bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-        },
-      },
-      security: [{ bearerAuth: [] }],
-    },
-    transform: jsonSchemaTransform,
-  });
-
-  app.register(swaggerUi, {
-    routePrefix: '/docs',
-    uiConfig: { docExpansion: 'list' },
-    logLevel: 'warn',
-  });
 
   // --- Routes ---
   app.register(authRoutes, { prefix: '/api/v1/auth' });
