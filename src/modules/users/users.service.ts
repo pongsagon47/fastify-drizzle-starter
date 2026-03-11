@@ -6,6 +6,7 @@ import { FastifyRequest } from 'fastify';
 import { deleteFile, uploadImage } from '@/utils/upload/upload';
 import { formatThaiShort } from '@/utils/time/time';
 import { User } from '@/db/schema/users';
+import { getCache, setCache, delCache, delCacheByPattern } from '@/utils/cache/cache';
 
 const repo = new UsersRepository();
 
@@ -24,26 +25,36 @@ function mapUserToResponse(user: User): UserResponse {
 
 export class UsersService {
   async getAll(query: UserQuery): Promise<UserListResponse> {
+    const cacheKey = `users:list:${query.page}:${query.limit}:${query.search ?? ''}`;
+    const cached = await getCache<UserListResponse>(cacheKey);
+    if (cached) return cached;
+
     const { rows, total } = await repo.findAll(query);
-    const users = rows.map(mapUserToResponse);
-    return { rows: users, total };
+    const result: UserListResponse = { rows: rows.map(mapUserToResponse), total };
+    await setCache(cacheKey, result);
+    return result;
   }
 
   async getById(id: number): Promise<UserResponse> {
+    const cacheKey = `users:${id}`;
+    const cached = await getCache<UserResponse>(cacheKey);
+    if (cached) return cached;
+
     const user = await repo.findById(id);
     if (!user) throw new NotFoundError('User not found');
-    return mapUserToResponse(user);
+    const result = mapUserToResponse(user);
+    await setCache(cacheKey, result);
+    return result;
   }
 
   async create(data: CreateUserDto): Promise<UserResponse> {
-    // ตรวจ email ซ้ำ
     const existing = await repo.findByEmail(data.email);
     if (existing) throw new ConflictError('Email already in use');
 
-    // hash password ก่อน save
     const hashedPassword = await bcrypt.hash(data.password, 10);
-
     const user = await repo.create({ ...data, password: hashedPassword });
+
+    await delCacheByPattern('users:list:*');
     return mapUserToResponse(user);
   }
 
@@ -51,13 +62,15 @@ export class UsersService {
     const existing = await repo.findById(id);
     if (!existing) throw new NotFoundError('User');
 
-    // ถ้าจะเปลี่ยน email ตรวจซ้ำด้วย
     if (data.email && data.email !== existing.email) {
       const emailTaken = await repo.findByEmail(data.email);
       if (emailTaken) throw new ConflictError('Email already in use');
     }
 
     const user = await repo.update(id, data);
+
+    await delCache(`users:${id}`);
+    await delCacheByPattern('users:list:*');
     return mapUserToResponse(user);
   }
 
@@ -75,12 +88,14 @@ export class UsersService {
       buffer,
       originalName: filename,
       mimeType: mimetype,
-      resize: 'thumbnail',  // ← ควรใส่
+      resize: 'thumbnail',
     });
 
-    if (user.avatar) await deleteFile(user.avatar);  // ← ควรมี
+    if (user.avatar) await deleteFile(user.avatar);
 
     await repo.updateAvatar(id, result.path);
+    await delCache(`users:${id}`);
+    await delCacheByPattern('users:list:*');
   }
 
   async delete(id: number): Promise<void> {
@@ -88,5 +103,7 @@ export class UsersService {
     if (!existing) throw new NotFoundError('User');
 
     await repo.delete(id);
+    await delCache(`users:${id}`);
+    await delCacheByPattern('users:list:*');
   }
 }

@@ -1,13 +1,14 @@
 import fp from 'fastify-plugin';
 import rateLimit from '@fastify/rate-limit';
-// import { createClient } from 'redis';
+import { redis } from '@/config/redis';
 
 export const rateLimitPlugin = fp(async (app) => {
-  // const redisClient = createClient({ url: "" })
   await app.register(rateLimit, {
-    global: true,          // apply ทุก route
-    max: 100,              // 100 requests
+    global: true,
+    max: 100,
     timeWindow: '1 minute',
-    // redis: redisClient,
+    ...(redis ? { redis } : {}),
   });
+
+  app.log.info(redis ? '✅ Rate limit using Redis store' : 'ℹ️  Rate limit using in-memory store');
 });

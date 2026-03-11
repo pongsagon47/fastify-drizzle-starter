@@ -16,7 +16,8 @@ const envSchema = z.object({
 
   // JWT
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
-  JWT_EXPIRES_IN: z.string().default('7d'),
+  JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 
   // CORS
   ALLOWED_ORIGINS: z.string().optional(),
@@ -28,6 +29,14 @@ const envSchema = z.object({
   MAIL_PASS: z.string().optional(),
   MAIL_FROM: z.email('MAIL_FROM must be a valid email address').optional(),
   MAIL_FROM_NAME: z.string().optional(),
+
+  // REDIS
+  REDIS_URL: z.string().optional(),
+  REDIS_TTL: z.coerce.number().default(60),
+
+  // APP
+  APP_URL: z.string().default('http://localhost:3000'),
+  PASSWORD_RESET_EXPIRES_IN: z.coerce.number().default(1800), // 30 minutes
 });
 
 const parsed = envSchema.safeParse(process.env);

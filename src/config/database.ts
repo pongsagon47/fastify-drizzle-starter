@@ -31,12 +31,12 @@ const pool = mysql.createPool(connectConfig());
 export const db = drizzle(pool, { schema, mode: 'default' });
 export type DB = typeof db;
 
-export async function checkDatabaseConnection() {
+export async function checkDatabaseConnection(log: { info: (msg: string) => void; error: (obj: unknown, msg: string) => void }) {
   try {
     await db.execute(sql`SELECT 1`);
-    console.log('✅ Database connected');
+    log.info('✅ Database connected');
   } catch (err) {
-    console.error('❌ Database connection failed:', err);
+    log.error({ err }, '❌ Database connection failed');
     process.exit(1);
   }
 }

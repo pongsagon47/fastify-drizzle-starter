@@ -1,23 +1,24 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { UnauthorizedError } from '@/shared/errors';
+import { isBlacklisted } from '@/utils/auth/token';
 
-// ใช้เป็น preHandler hook สำหรับ route ที่ต้องการ auth
-export async function authenticate(
-  request: FastifyRequest,
-  reply: FastifyReply
-) {
+export async function authenticate(request: FastifyRequest, _reply: FastifyReply) {
   try {
     await request.jwtVerify();
   } catch {
     throw new UnauthorizedError('Invalid or expired token');
   }
+
+  const { jti } = request.user;
+  if (jti && await isBlacklisted(jti)) {
+    throw new UnauthorizedError('Token has been revoked');
+  }
 }
 
-// ใช้สำหรับ route ที่ต้องการ role เฉพาะ
 export function requireRole(...roles: string[]) {
   return async (request: FastifyRequest, _reply: FastifyReply) => {
-    const user = request.user as { role: string; };
-    if (!roles.includes(user.role)) {
+    const { role } = request.user;
+    if (!roles.includes(role)) {
       throw new UnauthorizedError('Insufficient permissions');
     }
   };

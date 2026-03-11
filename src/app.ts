@@ -16,11 +16,15 @@ import { mailerPlugin } from '@/plugins/mailer';
 import { rateLimitPlugin } from '@/plugins/rate-limit';
 import { multipartPlugin } from '@/plugins/multipart';
 import { helmetPlugin } from '@/plugins/helmet';
+import { redisPlugin } from '@/plugins/redis';
+import { compressPlugin } from '@/plugins/compress';
+import { queuePlugin } from '@/plugins/queue';
 
 // Modules
 import { usersRoutes } from '@/modules/users/users.route';
 import { authRoutes } from '@/modules/auth/auth.route';
 import { devRoutes } from '@/modules/dev/dev.route';
+import { healthRoutes } from '@/modules/health/health.route';
 
 function getLoggerTransport() {
   if (env.NODE_ENV === 'production') return undefined;
@@ -45,23 +49,21 @@ export function buildApp() {
   app.setSerializerCompiler(serializerCompiler);
 
   // --- Plugins ---
+  app.register(compressPlugin);
   app.register(helmetPlugin);
   app.register(corsPlugin);
   app.register(jwtPlugin);
   app.register(swaggerPlugin);
+  app.register(redisPlugin);
   app.register(mailerPlugin);
+  app.register(queuePlugin);
   app.register(rateLimitPlugin);
   app.register(multipartPlugin);
   // --- Routes ---
+  app.register(healthRoutes);
   app.register(authRoutes, { prefix: '/api/v1/auth' });
   app.register(usersRoutes, { prefix: '/api/v1/users' });
   app.register(devRoutes, { prefix: '/api/v1/dev' });
-
-  // Health check
-  app.get('/health', async () => ({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-  }));
 
   // --- Error Handler ---
   app.setErrorHandler(errorHandler); // ✅ บรรทัดเดียว

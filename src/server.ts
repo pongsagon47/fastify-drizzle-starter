@@ -6,14 +6,10 @@ import { env } from '@/config/env';
 const app = buildApp();
 
 const start = async () => {
-  // ตรวจสอบการเชื่อมต่อกับฐานข้อมูล
-  await checkDatabaseConnection();
-
-  // เริ่ม server
   try {
+    await checkDatabaseConnection(app.log);
     await app.listen({ port: env.PORT, host: '0.0.0.0' });
-    console.log(`🚀 Server running on port ${env.PORT}`);
-    console.log(`📖 Swagger docs: http://localhost:${env.PORT}/docs`);
+    app.log.info(`📖 Swagger docs: http://localhost:${env.PORT}/docs`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
@@ -22,7 +18,7 @@ const start = async () => {
 
 // Graceful shutdown
 const shutdown = async (signal: string) => {
-  console.log(`\n${signal} received — shutting down...`);
+  app.log.info(`${signal} received — shutting down...`);
   await app.close();
   process.exit(0);
 };

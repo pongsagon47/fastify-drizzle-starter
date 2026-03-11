@@ -1,108 +1,83 @@
-import { eq, like, or, count, desc } from 'drizzle-orm';
+import { eq, like, or, count, desc, isNull, and } from 'drizzle-orm';
 import { db } from '@/config/database';
 import { posts, users, type NewUser, type User } from '@/db/schema/index';
 import type { UpdateUserDto, UserQuery } from '@/modules/users/users.schema';
 
-
+// กรอง soft-deleted rows ออกเสมอ
+const notDeleted = isNull(users.deletedAt);
 
 export class UsersRepository {
-  // หา user ทั้งหมด + pagination
   async findAll(query: UserQuery) {
     const { page, limit, search } = query;
     const offset = (page - 1) * limit;
 
-    const whereClause = search
-      ? or(
-        like(users.name, `%${search}%`),
-        like(users.email, `%${search}%`)
-      )
+    const searchClause = search
+      ? or(like(users.name, `%${search}%`), like(users.email, `%${search}%`))
       : undefined;
 
-    const [rows, [{ total }]] = await Promise.all([
-      db
-        .select()
-        .from(users)
-        .where(whereClause)
-        .limit(limit)
-        .offset(offset),
+    const whereClause = searchClause ? and(notDeleted, searchClause) : notDeleted;
 
-      db
-        .select({ total: count() })
-        .from(users)
-        .where(whereClause),
+    const [rows, [{ total }]] = await Promise.all([
+      db.select().from(users).where(whereClause).limit(limit).offset(offset),
+      db.select({ total: count() }).from(users).where(whereClause),
     ]);
 
     return { rows, total: Number(total) };
   }
 
-  // หา user ตาม id
   async findById(id: number) {
     const [row] = await db
       .select()
       .from(users)
-      .where(eq(users.id, id))
+      .where(and(eq(users.id, id), notDeleted))
       .limit(1);
 
     return row ?? null;
-
   }
 
-  // Example of using relations
   findUserWithPosts(id: number) {
     return db.query.users.findFirst({
-      where: eq(users.id, id),
+      where: and(eq(users.id, id), notDeleted),
       with: {
         posts: {
-          columns: {
-            id: true,
-            title: true,
-            content: true,
-          },
+          columns: { id: true, title: true, content: true },
           orderBy: [desc(posts.createdAt)],
         },
       },
     });
   }
 
-  // หา user ตาม email (รวม password สำหรับ auth)
   async findByEmail(email: string): Promise<User | null> {
     const [row] = await db
       .select()
       .from(users)
-      .where(eq(users.email, email))
+      .where(and(eq(users.email, email), notDeleted))
       .limit(1);
 
     return row ?? null;
   }
 
-  // สร้าง user ใหม่
   async create(data: NewUser) {
     const [result] = await db.insert(users).values(data);
     return this.findById(result.insertId);
   }
 
-  // อัปเดต user
   async update(id: number, data: UpdateUserDto) {
-    await db.update(users).set(data).where(eq(users.id, id));
+    await db.update(users).set(data).where(and(eq(users.id, id), notDeleted));
     return this.findById(id);
   }
 
-  // users.repository.ts
   async updateAvatar(id: number, avatarPath: string) {
-    await db
-      .update(users)
-      .set({ avatar: avatarPath })
-      .where(eq(users.id, id));
+    await db.update(users).set({ avatar: avatarPath }).where(and(eq(users.id, id), notDeleted));
     return this.findById(id);
   }
 
-  // ลบ user
+  async updatePassword(id: number, hashedPassword: string) {
+    await db.update(users).set({ password: hashedPassword }).where(and(eq(users.id, id), notDeleted));
+  }
+
+  // Soft delete — ตั้ง deletedAt แทนการลบจริง
   async delete(id: number) {
-    await db.delete(users).where(eq(users.id, id));
+    await db.update(users).set({ deletedAt: new Date() }).where(and(eq(users.id, id), notDeleted));
   }
 }
-
-// ตัวอย่างการ ประกาศ type ของ result ของ repository
-// const _repo = new UsersRepository();
-// export type UserResult = NonNullable<Awaited<ReturnType<typeof _repo.findAll>>>['rows'][number];
-// export type UserWithPostsResult = NonNullable<Awaited<ReturnType<typeof _repo.findById>>>;
