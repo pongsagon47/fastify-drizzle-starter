@@ -15,6 +15,7 @@ import { swaggerPlugin } from '@/plugins/swagger';
 import { mailerPlugin } from '@/plugins/mailer';
 import { rateLimitPlugin } from '@/plugins/rate-limit';
 import { multipartPlugin } from '@/plugins/multipart';
+import { helmetPlugin } from '@/plugins/helmet';
 
 // Modules
 import { usersRoutes } from '@/modules/users/users.route';
@@ -44,6 +45,7 @@ export function buildApp() {
   app.setSerializerCompiler(serializerCompiler);
 
   // --- Plugins ---
+  app.register(helmetPlugin);
   app.register(corsPlugin);
   app.register(jwtPlugin);
   app.register(swaggerPlugin);

@@ -1,4 +1,4 @@
-import { hash } from 'crypto';
+import bcrypt from 'bcrypt';
 import type { FastifyInstance } from 'fastify';
 import { UsersRepository } from '@/modules/users/users.repository';
 import { UnauthorizedError } from '@/shared/errors';
@@ -16,8 +16,8 @@ export class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    const hashedPassword = hash('sha256', data.password);
-    if (hashedPassword !== user.password) {
+    const isPasswordValid = await bcrypt.compare(data.password, user.password);
+    if (!isPasswordValid) {
       throw new UnauthorizedError('Invalid email or password');
     }
 
