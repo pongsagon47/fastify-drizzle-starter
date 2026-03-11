@@ -19,6 +19,8 @@ import { helmetPlugin } from '@/plugins/helmet';
 import { redisPlugin } from '@/plugins/redis';
 import { compressPlugin } from '@/plugins/compress';
 import { queuePlugin } from '@/plugins/queue';
+import { mongoPlugin } from '@/plugins/mongo';
+import { requestLoggerPlugin } from '@/plugins/request-logger';
 
 // Modules
 import { usersRoutes } from '@/modules/users/users.route';
@@ -57,6 +59,8 @@ export function buildApp() {
   app.register(redisPlugin);
   app.register(mailerPlugin);
   app.register(queuePlugin);
+  app.register(mongoPlugin);
+  app.register(requestLoggerPlugin);
   app.register(rateLimitPlugin);
   app.register(multipartPlugin);
   // --- Routes ---

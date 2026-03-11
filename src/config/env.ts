@@ -37,6 +37,10 @@ const envSchema = z.object({
   // APP
   APP_URL: z.string().default('http://localhost:3000'),
   PASSWORD_RESET_EXPIRES_IN: z.coerce.number().default(1800), // 30 minutes
+
+  // MONGODB (optional — for request logging)
+  MONGO_URL: z.string().optional(),
+  MONGO_LOG_TTL_DAYS: z.coerce.number().default(30),
 });
 
 const parsed = envSchema.safeParse(process.env);
