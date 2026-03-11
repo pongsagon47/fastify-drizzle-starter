@@ -101,3 +101,8 @@ export class UsersRepository {
     await db.delete(users).where(eq(users.id, id));
   }
 }
+
+// ตัวอย่างการ ประกาศ type ของ result ของ repository
+// const _repo = new UsersRepository();
+// export type UserResult = NonNullable<Awaited<ReturnType<typeof _repo.findAll>>>['rows'][number];
+// export type UserWithPostsResult = NonNullable<Awaited<ReturnType<typeof _repo.findById>>>;
