@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1773048413264,
+      "tag": "0000_create_users_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1773048482084,
+      "tag": "0001_add_gender_to_users_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773049044466,
+      "tag": "0002_remove_gender_to_users_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1773050289883,
+      "tag": "0003_update_users_and_posts",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1773050380457,
+      "tag": "0004_edit_fk_user_id_in_posts_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1773130169630,
+      "tag": "0005_add_avatar_to_users_table",
+      "breakpoints": true
+    }
+  ]
+}

@@ -17,9 +17,6 @@ logs/
 pino-*.log
 pnpm-debug.log*
 
-# Database
-src/db/migrations/meta/
-
 # OS
 .DS_Store
 Thumbs.db
