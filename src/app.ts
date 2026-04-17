@@ -70,7 +70,7 @@ export function buildApp() {
   app.register(devRoutes, { prefix: '/api/v1/dev' });
 
   // --- Error Handler ---
-  app.setErrorHandler(errorHandler); // ✅ บรรทัดเดียว
+  app.setErrorHandler(errorHandler);
 
   return app;
 }

@@ -1,6 +1,19 @@
 import fp from 'fastify-plugin';
-import type { RequestLog } from '@/modules/logs/log.model';
-import { LOG_COLLECTION } from '@/modules/logs/log.model';
+
+interface RequestLog {
+  requestId: string;
+  method: string;
+  url: string;
+  statusCode: number;
+  responseTimeMs: number;
+  ip: string;
+  userAgent: string | null;
+  userId: number | null;
+  reqBody: Record<string, unknown> | null;
+  timestamp: Date;
+}
+
+const LOG_COLLECTION = 'request_logs';
 
 // paths ที่ไม่ต้อง log
 const SKIP_PATHS = ['/health', '/docs', '/favicon.ico'];

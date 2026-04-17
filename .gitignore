@@ -15,6 +15,7 @@ build/
 logs/
 *.log
 pino-*.log
+pnpm-debug.log*
 
 # Database
 src/db/migrations/meta/
@@ -29,6 +30,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Claude Code
+.claude
+
 # TypeScript
 *.tsbuildinfo
 
@@ -37,3 +41,10 @@ coverage/
 
 # Drizzle
 drizzle/
+
+# Uploads (user-uploaded files)
+uploads/
+
+# Temp
+tmp/
+temp/

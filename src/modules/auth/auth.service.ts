@@ -20,6 +20,7 @@ import {
 } from '@/utils/auth/token';
 import { sendResetPasswordMail } from '@/utils/mailer/mailer';
 import { addEmailJob } from '@/queues/email/queue';
+import { delCache } from '@/utils/cache/cache';
 
 const repo = new UsersRepository();
 
@@ -112,8 +113,6 @@ export class AuthService {
     await repo.updatePassword(userId, hashedPassword);
     await deleteResetToken(data.token);
 
-    // invalidate cache
-    const { delCache } = await import('@/utils/cache/cache');
     await delCache(`users:${userId}`);
   }
 
