@@ -1,18 +1,18 @@
-import { Queue } from 'bullmq';
-import type { QueueConnectionOptions } from '../connection';
-import { createQueueConnection } from '../connection';
+import { Queue } from "bullmq";
+import type { QueueConnectionOptions } from "@/queues/connection";
+import { createQueueConnection } from "@/queues/connection";
 
 // --- Job types ---
 
 export type WelcomeJobData = {
-  type: 'welcome';
+  type: "welcome";
   to: string;
   name: string;
   loginUrl: string;
 };
 
 export type ResetPasswordJobData = {
-  type: 'reset-password';
+  type: "reset-password";
   to: string;
   name: string;
   resetLink: string;
@@ -20,7 +20,7 @@ export type ResetPasswordJobData = {
 };
 
 export type OtpJobData = {
-  type: 'otp';
+  type: "otp";
   to: string;
   name: string;
   otp: string;
@@ -34,15 +34,15 @@ export type EmailJobData = WelcomeJobData | ResetPasswordJobData | OtpJobData;
 const connection: QueueConnectionOptions | null = createQueueConnection();
 
 export const emailQueue = connection
-  ? new Queue<EmailJobData, void, string>('email', {
-      connection,
-      defaultJobOptions: {
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 5000 },
-        removeOnComplete: { count: 100 },
-        removeOnFail: { count: 500 },
-      },
-    })
+  ? new Queue<EmailJobData, void, string>("email", {
+    connection,
+    defaultJobOptions: {
+      attempts: 3,
+      backoff: { type: "exponential", delay: 5000 },
+      removeOnComplete: { count: 100 },
+      removeOnFail: { count: 500 },
+    },
+  })
   : null;
 
 // --- Producer helper ---

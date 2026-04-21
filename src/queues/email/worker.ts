@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import type { Transporter } from 'nodemailer';
-import type { QueueConnectionOptions } from '../connection';
-import type { EmailJobData } from './queue';
+import type { QueueConnectionOptions } from '@/queues/connection';
+import type { EmailJobData } from '@/queues/email/queue';
 import { sendWelcomeMail, sendResetPasswordMail, sendOtpMail } from '@/utils/mailer/mailer';
 
 export function createEmailWorker(connection: QueueConnectionOptions, mailer: Transporter) {

@@ -1,10 +1,14 @@
-import { eq, like, or, count, desc, isNull, and } from 'drizzle-orm';
+import { eq, like, or, count, desc, isNull, and, type SQL } from 'drizzle-orm';
 import { db } from '@/config/database';
 import { posts, users, type NewUser, type User } from '@/db/schema/index';
 import type { UpdateUserDto, UserQuery } from '@/modules/users/users.schema';
 
-// กรอง soft-deleted rows ออกเสมอ
 const notDeleted = isNull(users.deletedAt);
+
+function activeWhere(...conditions: (SQL | undefined)[]) {
+  const defined = conditions.filter(Boolean) as SQL[];
+  return defined.length ? and(notDeleted, ...defined) : notDeleted;
+}
 
 export class UsersRepository {
   async findAll(query: UserQuery) {
@@ -15,7 +19,7 @@ export class UsersRepository {
       ? or(like(users.name, `%${search}%`), like(users.email, `%${search}%`))
       : undefined;
 
-    const whereClause = searchClause ? and(notDeleted, searchClause) : notDeleted;
+    const whereClause = activeWhere(searchClause);
 
     const [rows, [{ total }]] = await Promise.all([
       db.select().from(users).where(whereClause).limit(limit).offset(offset),
@@ -29,7 +33,7 @@ export class UsersRepository {
     const [row] = await db
       .select()
       .from(users)
-      .where(and(eq(users.id, id), notDeleted))
+      .where(activeWhere(eq(users.id, id)))
       .limit(1);
 
     return row ?? null;
@@ -37,7 +41,7 @@ export class UsersRepository {
 
   findUserWithPosts(id: number) {
     return db.query.users.findFirst({
-      where: and(eq(users.id, id), notDeleted),
+      where: activeWhere(eq(users.id, id)),
       with: {
         posts: {
           columns: { id: true, title: true, content: true },
@@ -51,7 +55,7 @@ export class UsersRepository {
     const [row] = await db
       .select()
       .from(users)
-      .where(and(eq(users.email, email), notDeleted))
+      .where(activeWhere(eq(users.email, email)))
       .limit(1);
 
     return row ?? null;
@@ -63,21 +67,21 @@ export class UsersRepository {
   }
 
   async update(id: number, data: UpdateUserDto) {
-    await db.update(users).set(data).where(and(eq(users.id, id), notDeleted));
+    await db.update(users).set(data).where(activeWhere(eq(users.id, id)));
     return this.findById(id);
   }
 
   async updateAvatar(id: number, avatarPath: string) {
-    await db.update(users).set({ avatar: avatarPath }).where(and(eq(users.id, id), notDeleted));
+    await db.update(users).set({ avatar: avatarPath }).where(activeWhere(eq(users.id, id)));
     return this.findById(id);
   }
 
   async updatePassword(id: number, hashedPassword: string) {
-    await db.update(users).set({ password: hashedPassword }).where(and(eq(users.id, id), notDeleted));
+    await db.update(users).set({ password: hashedPassword }).where(activeWhere(eq(users.id, id)));
   }
 
   // Soft delete — ตั้ง deletedAt แทนการลบจริง
   async delete(id: number) {
-    await db.update(users).set({ deletedAt: new Date() }).where(and(eq(users.id, id), notDeleted));
+    await db.update(users).set({ deletedAt: new Date() }).where(activeWhere(eq(users.id, id)));
   }
 }
